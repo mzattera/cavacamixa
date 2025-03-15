@@ -1,8 +1,12 @@
 package io.github.mzattera.cavacamixa;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import io.github.mzattera.util.FileUtil;
 
 /**
  * Plays many games in parallel and saves the last configuration tried.
@@ -10,6 +14,10 @@ import java.util.concurrent.TimeUnit;
  * @author Massimiliano "Maxi" Zattera
  */
 public class ParallelExecutor {
+
+	public static final String SAVE_FILE_NAME = "cavacamixa_checkpoint.txt";
+
+	private static final String LONGEST_FILE_NAME = "cavacamixa_longest_game.txt";
 
 	private class Runner implements Runnable {
 		@Override
@@ -26,15 +34,38 @@ public class ParallelExecutor {
 		}
 	}
 
+	// Next config to play
 	private DeckConfig current = null;
+
 	private GameStats longestGame = null;
-	private final long maxGames;
+	private final long batchSize;
 	private long games = 0;
 
-	public ParallelExecutor(DeckConfig first, long maxGames) {
-		// TODO Read latest config we tested (checkpoint) and start from there
-		current = first;
-		this.maxGames = maxGames;
+	private final File saveFolder;
+
+	/**
+	 * 
+	 * @param saveFolder Folder where to save check point and longest game.
+	 * @param batchSize  Size of a batch, after which check point is saved.
+	 * @throws IOException If configuration folder cannot be read.
+	 */
+	public ParallelExecutor(File saveFolder, int batchSize) throws IOException {
+		this.saveFolder = saveFolder;
+		File saveCfg = new File(saveFolder, SAVE_FILE_NAME);
+		if (saveCfg.exists()) {
+			current = readCheckPoint(saveCfg);
+		} else {
+			current = new DeckConfig();
+		}
+		this.batchSize = batchSize;
+	}
+
+	private void writeCheckPoint(DeckConfig cfg) throws IOException {
+		FileUtil.writeFile(new File(saveFolder, SAVE_FILE_NAME), cfg.toString());
+	}
+
+	private DeckConfig readCheckPoint(File saveCfg) throws IOException {
+		return new DeckConfig(FileUtil.readFile(new File(saveFolder, SAVE_FILE_NAME)));
 	}
 
 	/**
@@ -44,7 +75,7 @@ public class ParallelExecutor {
 	 *         tried already.
 	 */
 	public synchronized DeckConfig onStart() {
-		if (games++ < maxGames) {
+		if (games++ < batchSize) {
 			DeckConfig result = current;
 			current = current.next();
 			return result;
@@ -59,15 +90,29 @@ public class ParallelExecutor {
 	 * @param gameStats Game statistics.
 	 */
 	public synchronized void onFinish(GameStats gameStats) {
-		if (longestGame == null)
-			longestGame = gameStats;
-		else if (gameStats.getCardsPlayed() > longestGame.getCardsPlayed())
-			longestGame = gameStats;
 
-		if (longestGame == gameStats) {
-			// TODO save this checkpoint
-			// TODO if the game is infinite also print it out
-			System.out.println(longestGame.toString());
+		if (gameStats.getDeckConfig().isInfinite()) {
+			// Found an infinite game
+			// TODO store this separately
+			System.out.println("=== INFINITE GAME FOUND!!! ========================");
+			System.out.println(gameStats.toString());
+			System.out.println("===================================================");
+
+		} else {
+
+			if (longestGame == null)
+				longestGame = gameStats;
+			else if (gameStats.getCardsPlayed() > longestGame.getCardsPlayed())
+				longestGame = gameStats;
+
+			if (longestGame == gameStats) {
+				try {
+					System.out.println("Found longer game: " + gameStats);
+					FileUtil.writeFile(new File(saveFolder, LONGEST_FILE_NAME), gameStats.toString());
+				} catch (IOException e) {
+					onError(gameStats.getDeckConfig(), e);
+				}
+			}
 		}
 	}
 
@@ -79,25 +124,38 @@ public class ParallelExecutor {
 	 * @param e   Exception that occurred
 	 */
 	public synchronized void onError(DeckConfig cfg, Exception e) {
-		System.out.println("================================");
-		System.out.println("Error running this deck configuration: " + cfg + "\n");
-		e.printStackTrace();
-		System.out.println("================================");
-		System.out.flush();
+		System.err.println("================================");
+		System.err.println("Error running this deck configuration: " + cfg + "\n");
+		e.printStackTrace(System.err);
+		System.err.println("================================");
+		System.err.flush();
 
 		System.exit(-1);
 	}
 
 	/**
-	 * Runs this executor, playing all the games it has to play.
+	 * Runs forever, saving check points at each batch.
+	 * 
+	 * @throws IOException
+	 */
+	public void run() throws IOException {
+		System.out.println("Resuming playing from deck configuration: " + current);
+		while (true) {
+			runBatch();
+			writeCheckPoint(current);
+		}
+	}
+
+	/**
+	 * Runs this executor, playing one batch of games.
 	 * 
 	 * @param threads Number of threads to use for parallel execution. Use -1 to use
 	 *                a thread per processor.
 	 * 
 	 * @return The non-infinite game with the longest duration.
 	 */
-	public GameStats run() {
-		return run(-1);
+	private GameStats runBatch() {
+		return runBatch(-1);
 	}
 
 	/**
@@ -108,10 +166,10 @@ public class ParallelExecutor {
 	 * 
 	 * @return The non-infinite game with the longest duration.
 	 */
-	public GameStats run(int threads) {
+	private GameStats runBatch(int threads) {
+		games=0;
 		if (threads == -1)
 			threads = Runtime.getRuntime().availableProcessors();
-		System.out.println("Threads: " + threads);
 		ExecutorService ex = Executors.newFixedThreadPool(threads);
 		for (int i = 0; i < threads; ++i)
 			ex.execute(new Runner());
@@ -119,18 +177,9 @@ public class ParallelExecutor {
 
 		try {
 			ex.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS); // Waits for all threads to stop
-			// TODO Save current, which will be the first config to try next time
-			System.out.println("\nNext configuration to test: " + current + "\n");
 			return longestGame;
 		} catch (Exception e) {
 			return null;
 		}
-	}
-
-	public static void main(String[] args) {
-		ParallelExecutor ex = new ParallelExecutor(new DeckConfig(), 50_000_000);
-		GameStats stats = ex.run();
-		System.out.println("================================");
-		System.out.println("BEST configuration: " + stats + "\n");
 	}
 }

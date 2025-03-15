@@ -55,15 +55,16 @@ public class Player {
 		int player = 0;
 		int penalty = 0;
 		List[] deck = new ArrayList[2];
-		// TODO will it be faster using .subList() only (re-using cards)
 		deck[0] = new ArrayList<>(cards.subList(0, 20));
 		deck[1] = new ArrayList<>(cards.subList(20, 40));
 		List<Integer> pile = new ArrayList<>(40);
 
+		// All configurations in the game so far; this is to detect infinite games
+		List<int[]> stati = new ArrayList<>(1000);
+		stati.add(toIntArray(deck[0], deck[1]));
+
 		while (true) { // Game loop
-			
-			// TODO URGENT detect infinite games
-			
+
 			if (deck[player].size() == 0) {
 				stats.playerLost(player);
 				return stats;
@@ -79,17 +80,42 @@ public class Player {
 				stats.penaltyCardPlayed();
 				player = ++player & 1;
 			} else { // Played normal card
-				if (penalty != 0) { // Player was responding to a face card
+				if (penalty != 0) { // Player was responding to a penalty card
 					if (--penalty == 0) { // Player lost this hand
 						player = ++player & 1;
 						deck[player].addAll(pile);
 						pile.clear();
 						stats.handWon();
+
+						// Check if we were already in this configuration
+						int[] status = toIntArray(deck[0], deck[1]);
+						if (stati.contains(status)) {
+							// Yes, infinite game
+							if (player == 0) {
+								stats.getDeckConfig().isInfinite(true);
+								return stats;
+							}
+						} else {
+							// No, memorize this configuration
+							stati.add(status);
+						}
+
 					}
-				} else {
+				} else { // Was not responding to a penalty
 					player = ++player & 1;
 				}
 			}
 		}
+	}
+
+	private static int[] toIntArray(List<Integer> list1, List<Integer> list2) {
+		int[] r = new int[41];
+		int i = 0;
+		for (int l : list1)
+			r[i++] = l;
+		r[i++] = '-';
+		for (int l : list2)
+			r[i++] = l;
+		return r;
 	}
 }

@@ -20,6 +20,45 @@ public class DeckConfig {
 		return p[seed * 3 + value - 1];
 	}
 
+	private boolean isInfinite = false;
+
+	/**
+	 * 
+	 * @return True if this configuration defines an infinite game.
+	 */
+	public boolean isInfinite() {
+		return isInfinite;
+	}
+
+	/**
+	 * 
+	 * @param isInfinite True to mark this configuration as infinite game.
+	 * 
+	 * @return True if this configuration defines an infinite game.
+	 */
+	public boolean isInfinite(boolean isInfinite) {
+		return (this.isInfinite = isInfinite);
+	}
+
+	public DeckConfig() {
+	}
+
+	/**
+	 * Constructor from String representation.
+	 * 
+	 * @param cfg
+	 */
+	public DeckConfig(String cfg) {
+		cfg = cfg.trim();
+		if (!cfg.startsWith("[") || !cfg.endsWith("]"))
+			throw new IllegalArgumentException("Invalid deck configuration: " + cfg);
+		String[] s = cfg.substring(1, cfg.length() - 1).split(",");
+		if (s.length != p.length)
+			throw new IllegalArgumentException("Invalid deck configuration: " + cfg);
+		for (int i = 0; i < p.length; ++i)
+			p[i] = Integer.parseInt(s[i]);
+	}
+
 	/**
 	 * Call this repeatedly to obtain all possible decks.
 	 *
