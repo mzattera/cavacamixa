@@ -29,13 +29,14 @@ import java.io.IOException;
  */
 public class Cavacamixa {
 
-	public static final int BATCH_SIZE = 3;
+	public static final int BATCH_SIZE = 1_000_000;
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws IOException {
 		try {
+			// TODO play single game (from config or deck description) and print moves
 			if (args.length < 2) {
 
 				// Makes sure output folder exists and can be written
@@ -49,14 +50,10 @@ public class Cavacamixa {
 					throw new IOException("Cannot acccess folder: " + saveFolder.getCanonicalPath());
 
 				System.out.println("Playing games forever. Save folder: " + saveFolder.getCanonicalPath());
-				
+
 				// Runs games forever
-				while (true) {					
-					ParallelExecutor ex = new ParallelExecutor (saveFolder,BATCH_SIZE);
-					while (true) {
-						ex.run();
-					}					
-				}
+				new ParallelExecutor(saveFolder, BATCH_SIZE).run();
+
 			} else {
 				printUsage();
 				System.exit(-1);

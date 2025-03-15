@@ -108,6 +108,7 @@ public final class FileUtil {
 		try (BufferedWriter writer = new BufferedWriter(
 				new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
 			writer.write(text);
+			writer.flush();
 		}
 	}
 }

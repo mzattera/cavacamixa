@@ -39,7 +39,7 @@ public class Player {
 	 * @param cfg the deck configuration
 	 * @return A 40-card deck
 	 */
-	private static List<Integer> buildDeck(DeckConfig cfg) {
+	public static List<Integer> buildDeck(DeckConfig cfg) {
 		List<Integer> deck = new ArrayList<>(EMPTY_DECK);
 		for (int seed = 0; seed < 4; ++seed) {
 			for (int value = 1; value <= 3; ++value) {

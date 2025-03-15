@@ -51,7 +51,7 @@ public class ParallelExecutor {
 	}
 
 	// Next config to play
-	private DeckConfig current = null;
+	private DeckConfig current = new DeckConfig();
 
 	private GameStats longestGame = null;
 	private final long batchSize;
@@ -69,19 +69,23 @@ public class ParallelExecutor {
 		this.saveFolder = saveFolder;
 		File saveCfg = new File(saveFolder, SAVE_FILE_NAME);
 		if (saveCfg.exists()) {
-			current = readCheckPoint(saveCfg);
-		} else {
-			current = new DeckConfig();
+			readCheckPoint(saveCfg);
 		}
 		this.batchSize = batchSize;
 	}
 
 	private void writeCheckPoint(DeckConfig cfg) throws IOException {
-		FileUtil.writeFile(new File(saveFolder, SAVE_FILE_NAME), cfg.toString());
+		FileUtil.writeFile(new File(saveFolder, SAVE_FILE_NAME), cfg.toString() + "\n" + longestGame.getDeckConfig().toString());
+		System.out.println("Write...");
 	}
 
-	private DeckConfig readCheckPoint(File saveCfg) throws IOException {
-		return new DeckConfig(FileUtil.readFile(new File(saveFolder, SAVE_FILE_NAME)));
+	private void readCheckPoint(File saveCfg) throws IOException {
+		String cp = FileUtil.readFile(new File(saveFolder, SAVE_FILE_NAME));
+		String[] cpp = cp.trim().split("\\n");
+		if (cpp.length!=2)
+			throw new IllegalArgumentException("Invalid checkpoint file");
+		current = new DeckConfig(cpp[0]);
+		longestGame = Player.play(new DeckConfig(cpp[1]));		
 	}
 
 	/**
@@ -156,6 +160,8 @@ public class ParallelExecutor {
 	 */
 	public void run() throws IOException {
 		System.out.println("Resuming playing from deck configuration: " + current);
+		System.out.println("longest game so far: " + longestGame);
+		System.out.println();
 		while (true) {
 			runBatch();
 			writeCheckPoint(current);
