@@ -138,14 +138,25 @@ public class GameStats {
 	public boolean isInfinite(boolean v) {
 		return infinite = v;
 	}
-	
+
+	/**
+	 * 
+	 * @return True if this game is "uninteresting", meaning one of the two players
+	 *         has no penalty cards in their starting deck. In this case the game is
+	 *         not played and it length will be anyway less than 40 cards.
+	 */
+	public boolean isUninteresting() {
+		return cardsPlayed == 0;
+	}
+
 	public GameStats(Deck cfg) {
 		this.deck = cfg;
 	}
 
 	@Override
 	public String toString() {
-		return "GameStats [Deck=" + deck + ", CardsPlayed=" + cardsPlayed + ", PenaltyCardsPlayed="
-				+ penaltyCardsPlayed + ", Hands=" + hands + ", WinningPlayer=" + getWinningPlayer() + "]";
+		return "GameStats [Deck=" + deck + ", IsUninteresting? " + (isUninteresting() ? "yes" : "no") + ", CardsPlayed="
+				+ cardsPlayed + ", PenaltyCardsPlayed=" + penaltyCardsPlayed + ", Hands=" + hands + ", WinningPlayer="
+				+ getWinningPlayer() + "]";
 	}
 }
