@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * 
- */
 package io.github.mzattera.cavacamixa;
 
 import java.io.File;
@@ -29,7 +26,7 @@ import java.io.IOException;
  */
 public class Cavacamixa {
 
-	public static final int BATCH_SIZE = 1_000_000;
+	public static final int BATCH_SIZE = 1_000_000_000;
 
 	/**
 	 * @param args
@@ -49,11 +46,15 @@ public class Cavacamixa {
 				if (!saveFolder.canWrite() || !saveFolder.isDirectory())
 					throw new IOException("Cannot acccess folder: " + saveFolder.getCanonicalPath());
 
-				System.out.println("Playing games forever. Save folder: " + saveFolder.getCanonicalPath());
+				System.out.println("Playing games forever. Save folder: " + saveFolder.getCanonicalPath() + "\n");
 
 				// Runs games forever
 				new ParallelExecutor(saveFolder, BATCH_SIZE).run();
 
+			} else if (args.length == 2) {
+				if (args[0].equals("-p")) { // Plays one game from a deck description
+
+				}
 			} else {
 				printUsage();
 				System.exit(-1);

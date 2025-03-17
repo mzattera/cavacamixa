@@ -26,47 +26,11 @@ import java.util.List;
  */
 public class Player {
 
-	// Deck containing only "nulls"
-	private final static List<Integer> EMPTY_DECK = new ArrayList<>(40);
-	static {
-		for (int i = 0; i < 28; ++i)
-			EMPTY_DECK.add(0);
-	}
-
-	/**
-	 * Builds a 40-card deck based on a given configuration.
-	 * 
-	 * @param cfg the deck configuration
-	 * @return A 40-card deck
-	 */
-	public static List<Integer> buildDeck(DeckConfig cfg) {
-		List<Integer> deck = new ArrayList<>(EMPTY_DECK);
-		for (int seed = 0; seed < 4; ++seed) {
-			for (int value = 1; value <= 3; ++value) {
-				int i = cfg.get(seed, value);
-				if (i == deck.size())
-					deck.add(value);
-				else
-					deck.add(i, value);
-			}
-		}
-		return deck;
-	}
-
-	/**
-	 * Prints a deck.
-	 */
-	public static void printDeck(List<Integer> deck) {
-		for (int i : deck)
-			System.out.print(i + " ");
-		System.out.println();
-	}
-
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static GameStats play(DeckConfig cfg) {
+	public static GameStats play(Deck d) {
 
-		GameStats stats = new GameStats(cfg);
-		List<Integer> cards = buildDeck(cfg);
+		GameStats stats = new GameStats(d);
+		List<Integer> cards = d.toList();
 
 		int player = 0;
 		int penalty = 0;
@@ -108,7 +72,7 @@ public class Player {
 						if (stati.contains(status)) {
 							// Yes, infinite game
 							if (player == 0) {
-								stats.getDeckConfig().isInfinite(true);
+								stats.isInfinite(true);
 								return stats;
 							}
 						} else {

@@ -38,7 +38,7 @@ public class ParallelExecutor {
 	private class Runner implements Runnable {
 		@Override
 		public void run() {
-			DeckConfig cfg = null;
+			Deck cfg = null;
 			try {
 				while ((cfg = onStart()) != null) { // Run till we have configs to test
 					onFinish(Player.play(cfg));
@@ -51,7 +51,7 @@ public class ParallelExecutor {
 	}
 
 	// Next config to play
-	private DeckConfig current = new DeckConfig();
+	private Deck current = new Deck();
 
 	private GameStats longestGame = null;
 	private final long batchSize;
@@ -67,25 +67,25 @@ public class ParallelExecutor {
 	 */
 	public ParallelExecutor(File saveFolder, int batchSize) throws IOException {
 		this.saveFolder = saveFolder;
-		File saveCfg = new File(saveFolder, SAVE_FILE_NAME);
-		if (saveCfg.exists()) {
-			readCheckPoint(saveCfg);
+		File saveFile = new File(saveFolder, SAVE_FILE_NAME);
+		if (saveFile.exists()) {
+			readCheckPoint(saveFile);
 		}
 		this.batchSize = batchSize;
 	}
 
-	private void writeCheckPoint(DeckConfig cfg) throws IOException {
-		FileUtil.writeFile(new File(saveFolder, SAVE_FILE_NAME), cfg.toString() + "\n" + longestGame.getDeckConfig().toString());
-		System.out.println("Write...");
+	private void writeCheckPoint() throws IOException {
+		FileUtil.writeFile(new File(saveFolder, SAVE_FILE_NAME), current + "\n" + longestGame.getDeck());
+		System.out.println("Checkpoint...");
 	}
 
-	private void readCheckPoint(File saveCfg) throws IOException {
-		String cp = FileUtil.readFile(new File(saveFolder, SAVE_FILE_NAME));
+	private void readCheckPoint(File saveFile) throws IOException {
+		String cp = FileUtil.readFile(saveFile);
 		String[] cpp = cp.trim().split("\\n");
-		if (cpp.length!=2)
+		if (cpp.length != 2)
 			throw new IllegalArgumentException("Invalid checkpoint file");
-		current = new DeckConfig(cpp[0]);
-		longestGame = Player.play(new DeckConfig(cpp[1]));		
+		current = new Deck(cpp[0]);
+		longestGame = Player.play(new Deck(cpp[1]));
 	}
 
 	/**
@@ -94,12 +94,14 @@ public class ParallelExecutor {
 	 * @return Configuration of the game to try, or null if all games have been
 	 *         tried already.
 	 */
-	public synchronized DeckConfig onStart() {
+	public synchronized Deck onStart() {
 		if (games++ < batchSize) {
-			DeckConfig result = current;
+			if (current == null)
+				onError(null, new IllegalArgumentException("No other decks to try!"));
+			Deck result = current;
 			current = current.next();
 			return result;
-		} else {
+		} else { // Batch completed
 			return null;
 		}
 	}
@@ -107,30 +109,30 @@ public class ParallelExecutor {
 	/**
 	 * Invoked by runners when a game is finished.
 	 * 
-	 * @param gameStats Game statistics.
+	 * @param stats Game statistics.
 	 */
-	public synchronized void onFinish(GameStats gameStats) {
+	public synchronized void onFinish(GameStats stats) {
 
-		if (gameStats.getDeckConfig().isInfinite()) {
+		if (stats.isInfinite()) {
 			// Found an infinite game
 			// TODO store this separately
 			System.out.println("=== INFINITE GAME FOUND!!! ========================");
-			System.out.println(gameStats.toString());
+			System.out.println(stats.toString());
 			System.out.println("===================================================");
 
 		} else {
 
 			if (longestGame == null)
-				longestGame = gameStats;
-			else if (gameStats.getCardsPlayed() > longestGame.getCardsPlayed())
-				longestGame = gameStats;
+				longestGame = stats;
+			else if (stats.getCardsPlayed() > longestGame.getCardsPlayed())
+				longestGame = stats;
 
-			if (longestGame == gameStats) {
+			if (longestGame == stats) {
 				try {
-					System.out.println("Found longer game: " + gameStats);
-					FileUtil.writeFile(new File(saveFolder, LONGEST_FILE_NAME), gameStats.toString());
+					System.out.println("Found longer game: " + stats);
+					FileUtil.writeFile(new File(saveFolder, LONGEST_FILE_NAME), stats.toString());
 				} catch (IOException e) {
-					onError(gameStats.getDeckConfig(), e);
+					onError(stats.getDeck(), e);
 				}
 			}
 		}
@@ -140,12 +142,12 @@ public class ParallelExecutor {
 	 * Invoked when an error occurs. It ends current run.
 	 * 
 	 * 
-	 * @param cfg Configuration for the game
-	 * @param e   Exception that occurred
+	 * @param deck Deck used in the game
+	 * @param e    Exception that occurred
 	 */
-	public synchronized void onError(DeckConfig cfg, Exception e) {
+	public synchronized void onError(Deck deck, Exception e) {
 		System.err.println("================================");
-		System.err.println("Error running this deck configuration: " + cfg + "\n");
+		System.err.println("Error running this deck configuration: " + deck + "\n");
 		e.printStackTrace(System.err);
 		System.err.println("================================");
 		System.err.flush();
@@ -164,7 +166,7 @@ public class ParallelExecutor {
 		System.out.println();
 		while (true) {
 			runBatch();
-			writeCheckPoint(current);
+			writeCheckPoint();
 		}
 	}
 
@@ -189,7 +191,7 @@ public class ParallelExecutor {
 	 * @return The non-infinite game with the longest duration.
 	 */
 	private GameStats runBatch(int threads) {
-		games=0;
+		games = 0;
 		if (threads == -1)
 			threads = Runtime.getRuntime().availableProcessors();
 		ExecutorService ex = Executors.newFixedThreadPool(threads);

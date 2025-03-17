@@ -17,19 +17,19 @@
 package io.github.mzattera.cavacamixa;
 
 /**
- * Holds statistics fro one game.
+ * Holds statistics for one game.
  * 
  * @author Massimiliano "Maxi" Zattera
  */
 public class GameStats {
 
-	private final DeckConfig deckConfig;
+	private final Deck deck;
 
 	/**
 	 * @return The deck for this game
 	 */
-	public DeckConfig getDeckConfig() {
-		return deckConfig;
+	public Deck getDeck() {
+		return deck;
 	}
 
 	private int cardsPlayed = 0;
@@ -119,13 +119,33 @@ public class GameStats {
 		return losingPlayer = player;
 	}
 
-	public GameStats(DeckConfig cfg) {
-		this.deckConfig = cfg;
+	private boolean infinite = false;
+
+	/**
+	 * 
+	 * @return True if this is an infinite game.
+	 */
+	public boolean isInfinite() {
+		return infinite;
+	}
+
+	/**
+	 * Sets whether this game is infinite or not.
+	 * 
+	 * @param v True if this is an infinite game.
+	 * @return v
+	 */
+	public boolean isInfinite(boolean v) {
+		return infinite = v;
+	}
+
+	public GameStats(Deck cfg) {
+		this.deck = cfg;
 	}
 
 	@Override
 	public String toString() {
-		return "GameStats [deckConfig=" + deckConfig + ", cardsPlayed=" + cardsPlayed + ", penaltyCardsPlayed="
+		return "GameStats [deckConfig=" + deck + ", cardsPlayed=" + cardsPlayed + ", penaltyCardsPlayed="
 				+ penaltyCardsPlayed + ", hands=" + hands + ", winningPlayer=" + getWinningPlayer() + "]";
 	}
 }
