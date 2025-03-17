@@ -97,8 +97,10 @@ public class ParallelExecutor {
 	 */
 	public synchronized Deck onStart() {
 		if (games++ < batchSize) {
-			if (current == null)
-				onError(null, new IllegalArgumentException("No other decks to try!"));
+			if (current == null) {
+				System.out.println("No more decks to try!");
+				return null;
+			}
 			Deck result = current;
 			current = current.next();
 			return result;
