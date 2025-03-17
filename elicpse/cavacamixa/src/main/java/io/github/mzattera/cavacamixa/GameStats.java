@@ -145,7 +145,7 @@ public class GameStats {
 
 	@Override
 	public String toString() {
-		return "GameStats [deckConfig=" + deck + ", cardsPlayed=" + cardsPlayed + ", penaltyCardsPlayed="
-				+ penaltyCardsPlayed + ", hands=" + hands + ", winningPlayer=" + getWinningPlayer() + "]";
+		return "GameStats [Deck=" + deck + ", CardsPlayed=" + cardsPlayed + ", PenaltyCardsPlayed="
+				+ penaltyCardsPlayed + ", Hands=" + hands + ", WinningPlayer=" + getWinningPlayer() + "]";
 	}
 }

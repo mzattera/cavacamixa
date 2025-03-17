@@ -12,12 +12,16 @@ where the [first discovered infinite game](https://github.com/drago-96/cavacamis
 
 ## Longest game so far [March 17th, 2025]
 
+This is the longest finite game so far that is known (I assume).
 
 Playing game using deck: 32132000100200000000-00120000030301000000
 
 Cards Played         = 3070
+
 Penalty Cards Played = 937
+
 Hands                = 518
+
 WinningPlayer        = 1 
 
 ```
