@@ -138,7 +138,7 @@ public class GameStats {
 	public boolean isInfinite(boolean v) {
 		return infinite = v;
 	}
-
+	
 	public GameStats(Deck cfg) {
 		this.deck = cfg;
 	}

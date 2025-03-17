@@ -84,6 +84,21 @@ public class Player {
 	public static GameStats play(Deck d, PrintStream out) {
 
 		GameStats stats = new GameStats(d);
+
+		// Check whether one player has only 0; in this case we skip, as we know longest
+		// game will be less than 40 cards
+		int i = 0;
+		for (; i < 20; ++i)
+			if (d.cards[i] != 0)
+				break;
+		if (i == 20)
+			return stats;
+		for (i = 20; i < 40; ++i)
+			if (d.cards[i] != 0)
+				break;
+		if (i == 00)
+			return stats;
+
 		List<Integer> cards = d.toList();
 
 		int player = 0;
