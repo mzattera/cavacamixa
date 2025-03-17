@@ -18,6 +18,7 @@ package io.github.mzattera.cavacamixa;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -115,10 +116,14 @@ public class ParallelExecutor {
 
 		if (stats.isInfinite()) {
 			// Found an infinite game
-			// TODO store this separately
 			System.out.println("=== INFINITE GAME FOUND!!! ========================");
 			System.out.println(stats.toString());
 			System.out.println("===================================================");
+			try {
+				FileUtil.writeFile(new File(saveFolder, "cavacamixa_longest_game"+UUID.randomUUID()+".txt"), stats.toString());
+			} catch (IOException e) {
+				System.err.println("Cannot save, continuing...");
+			}
 
 		} else {
 

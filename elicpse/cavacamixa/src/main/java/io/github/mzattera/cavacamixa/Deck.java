@@ -71,6 +71,18 @@ public class Deck {
 	}
 
 	/**
+	 * Legacy.
+	 * 
+	 * @param other
+	 */
+	// TODO REMOVE
+	protected Deck(List<Integer> deck) {
+		for (int i = 0; i < deck.size(); i++) {
+		    cards[i] = deck.get(i);
+		}
+	}
+
+	/**
 	 * @return Next deck in the sequence of all possible deck combinations, or null
 	 *         if this is already last deck.
 	 */

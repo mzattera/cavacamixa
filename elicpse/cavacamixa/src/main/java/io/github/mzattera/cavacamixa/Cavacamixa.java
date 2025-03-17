@@ -26,14 +26,14 @@ import java.io.IOException;
  */
 public class Cavacamixa {
 
-	public static final int BATCH_SIZE = 1_000_000_000;
+//	public static final int BATCH_SIZE = 1_000_000_000;
+	public static final int BATCH_SIZE = 1_000_000;
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws IOException {
 		try {
-			// TODO play single game (from config or deck description) and print moves
 			if (args.length < 2) {
 
 				// Makes sure output folder exists and can be written
@@ -53,7 +53,12 @@ public class Cavacamixa {
 
 			} else if (args.length == 2) {
 				if (args[0].equals("-p")) { // Plays one game from a deck description
-
+					
+					System.out.println("\nPlaying game using deck: " + args[1] + "\n");
+					GameStats stats = Player.play(new Deck(args[1]), System.out);
+					System.out.println("\nGame results: " + stats);
+					if (stats.isInfinite())
+						System.out.println("*** THIS IS AN INFINITE GAME ***");
 				}
 			} else {
 				printUsage();
@@ -70,5 +75,7 @@ public class Cavacamixa {
 		System.out.println("\tPlays games forever saving longest game and recovery point in <saveFolder>.");
 		System.out.println("\tIf <saveFolder> contains a recovery point, it starts playing from there.");
 		System.out.println("\t<saveFolder> must exists and writable.");
+		System.out.println(Cavacamixa.class.getCanonicalName() + "-p <deck>");
+		System.out.println("\tPlays a game using <deck> which is a string of 40 numbers 0-3 representing a deck.");
 	}
 }

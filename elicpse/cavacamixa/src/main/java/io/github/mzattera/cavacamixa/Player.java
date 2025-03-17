@@ -16,8 +16,12 @@
 
 package io.github.mzattera.cavacamixa;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * This class can play a game of cavacamixa.
@@ -26,8 +30,58 @@ import java.util.List;
  */
 public class Player {
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	/**
+	 * Store status of the game.
+	 */
+	private static class Status {
+
+		private final List<Integer> deck0, deck1;
+
+		public Status(int player, List<Integer> deck0, List<Integer> deck1) {
+			if (player == 0) {
+				this.deck0 = new ArrayList<>(deck0);
+				this.deck1 = new ArrayList<>(deck1);
+			} else {
+				this.deck0 = new ArrayList<>(deck1);
+				this.deck1 = new ArrayList<>(deck0);
+			}
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o)
+				return true;
+			if (!(o instanceof Status))
+				return false;
+			Status other = (Status) o;
+			return deck0.equals(other.deck0) && deck1.equals(other.deck1);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(deck0, deck1);
+		}
+	}
+
+	/**
+	 * Plays a game using given deck.
+	 * 
+	 * @param d
+	 * @return
+	 */
 	public static GameStats play(Deck d) {
+		return play(d, null);
+	}
+
+	/**
+	 * Plays a game using given deck.
+	 * 
+	 * @param deck
+	 * @param out  If not null, prints game moves using this stream.
+	 * @return
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static GameStats play(Deck d, PrintStream out) {
 
 		GameStats stats = new GameStats(d);
 		List<Integer> cards = d.toList();
@@ -40,15 +94,27 @@ public class Player {
 		List<Integer> pile = new ArrayList<>(40);
 
 		// All configurations in the game so far; this is to detect infinite games
-		List<int[]> stati = new ArrayList<>(1000);
-		stati.add(toIntArray(deck[0], deck[1]));
+		Set<Status> stati = new HashSet<>();
+		stati.add(new Status(player, deck[0], deck[1]));
 
 		while (true) { // Game loop
+
+			try {
+				if (player == 0)
+					out.println(player + " > " + deck[0] + " - " + deck[1] + " - " + pile);
+				else
+					out.println(player + " > " + deck[1] + " - " + deck[0] + " - " + pile);
+			} catch (NullPointerException e) {
+				// Faster than checking stream
+			}
 
 			if (deck[player].size() == 0) {
 				stats.playerLost(player);
 				return stats;
 			}
+
+			if (stati.size() > 5000)
+				System.exit(-1);
 
 			// Play card
 			int played = (int) deck[player].remove(0);
@@ -68,34 +134,19 @@ public class Player {
 						stats.handWon();
 
 						// Check if we were already in this configuration
-						int[] status = toIntArray(deck[0], deck[1]);
+						Status status = new Status(player, deck[0], deck[1]);
 						if (stati.contains(status)) {
-							// Yes, infinite game
-							if (player == 0) {
-								stats.isInfinite(true);
-								return stats;
-							}
+							stats.isInfinite(true);
+							return stats;
 						} else {
 							// No, memorize this configuration
 							stati.add(status);
 						}
-
 					}
 				} else { // Was not responding to a penalty
 					player = ++player & 1;
 				}
 			}
 		}
-	}
-
-	private static int[] toIntArray(List<Integer> list1, List<Integer> list2) {
-		int[] r = new int[41];
-		int i = 0;
-		for (int l : list1)
-			r[i++] = l;
-		r[i++] = '-';
-		for (int l : list2)
-			r[i++] = l;
-		return r;
 	}
 }
