@@ -26,8 +26,10 @@ import java.io.IOException;
  */
 public class Cavacamixa {
 
-//	public static final int BATCH_SIZE = 1_000_000_000;
-	public static final int BATCH_SIZE = 1_000_000;
+	/**
+	 * Games played between two checkpoints.
+	 */
+	public static final int BATCH_SIZE = 1_000_000_000;
 
 	/**
 	 * @param args

@@ -120,7 +120,7 @@ public class ParallelExecutor {
 			System.out.println(stats.toString());
 			System.out.println("===================================================");
 			try {
-				FileUtil.writeFile(new File(saveFolder, "cavacamixa_longest_game"+UUID.randomUUID()+".txt"), stats.toString());
+				FileUtil.writeFile(new File(saveFolder, "cavacamixa_infinite_game"+UUID.randomUUID()+".txt"), stats.toString());
 			} catch (IOException e) {
 				System.err.println("Cannot save, continuing...");
 			}
