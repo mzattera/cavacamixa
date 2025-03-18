@@ -131,7 +131,7 @@ public class ParallelExecutor {
 
 			if (longestGame == null)
 				longestGame = stats;
-			else if (stats.getCardsPlayed() > longestGame.getCardsPlayed())
+			else if (stats.getCardsPlayed() >= longestGame.getCardsPlayed())
 				longestGame = stats;
 
 			if (longestGame == stats) {
