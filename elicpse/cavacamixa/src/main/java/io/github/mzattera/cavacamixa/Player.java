@@ -116,9 +116,9 @@ public class Player {
 
 			try {
 				if (player == 0)
-					out.println(player + " > " + deck[0] + " - " + deck[1] + " - " + pile);
+					out.println(stats.getCardsPlayed() + ": " + player + " > " + deck[0] + " - " + deck[1] + " - " + pile);
 				else
-					out.println(player + " > " + deck[1] + " - " + deck[0] + " - " + pile);
+					out.println(stats.getCardsPlayed() + ": " + player + " > " + deck[1] + " - " + deck[0] + " - " + pile);
 			} catch (NullPointerException e) {
 				// Faster than checking stream
 			}
