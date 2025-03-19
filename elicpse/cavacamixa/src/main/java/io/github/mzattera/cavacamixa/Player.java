@@ -96,7 +96,7 @@ public class Player {
 		for (i = 20; i < 40; ++i)
 			if (d.cards[i] != 0)
 				break;
-		if (i == 00)
+		if (i == 40)
 			return stats;
 
 		List<Integer> cards = d.toList();
@@ -127,9 +127,6 @@ public class Player {
 				stats.playerLost(player);
 				return stats;
 			}
-
-			if (stati.size() > 5000)
-				System.exit(-1);
 
 			// Play card
 			int played = (int) deck[player].remove(0);
