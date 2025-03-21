@@ -77,7 +77,7 @@ public class ParallelExecutor {
 
 	private void writeCheckPoint() throws IOException {
 		FileUtil.writeFile(new File(saveFolder, SAVE_FILE_NAME), current + "\n" + longestGame.getDeck());
-		System.out.println("Checkpoint...");
+		System.out.println("Checkpoint [" + current + "]...");
 	}
 
 	private void readCheckPoint(File saveFile) throws IOException {
@@ -122,7 +122,8 @@ public class ParallelExecutor {
 			System.out.println(stats.toString());
 			System.out.println("===================================================");
 			try {
-				FileUtil.writeFile(new File(saveFolder, "cavacamixa_infinite_game"+UUID.randomUUID()+".txt"), stats.toString());
+				FileUtil.writeFile(new File(saveFolder, "cavacamixa_infinite_game" + UUID.randomUUID() + ".txt"),
+						stats.toString());
 			} catch (IOException e) {
 				System.err.println("Cannot save, continuing...");
 			}
