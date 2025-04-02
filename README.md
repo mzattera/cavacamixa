@@ -14,7 +14,9 @@ where the [first discovered infinite game](https://github.com/drago-96/cavacamis
 
 This requires Java 1.8.
 
-Run it with `java -jar cavacamixa.jar`; JAR file is provided within latest release.
+Run it with `java -jar cavacamixa.jar -h`
+
+.jar file is provided within latest release.
 
 ## Longest game so far [March 22nd, 2025]
 
