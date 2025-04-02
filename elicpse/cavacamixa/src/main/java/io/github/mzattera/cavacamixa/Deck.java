@@ -25,6 +25,7 @@ package io.github.mzattera.cavacamixa;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A 40 cards deck (already shuffled).
@@ -125,7 +126,7 @@ public class Deck {
 	 * @return This deck as a list of integers.
 	 */
 	public List<Integer> toList() {
-		return Arrays.stream(cards).boxed().toList();
+		return Arrays.stream(cards).boxed().collect(Collectors.toList());
 	}
 
 	@Override

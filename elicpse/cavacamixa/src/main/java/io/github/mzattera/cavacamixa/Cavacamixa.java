@@ -37,6 +37,10 @@ public class Cavacamixa {
 	public static void main(String[] args) throws IOException {
 		try {
 			if (args.length < 2) {
+				if ((args.length == 1) && args[0].equals("-h")) {
+					printUsage();
+					System.exit(0);
+				}
 
 				// Makes sure output folder exists and can be written
 				File saveFolder;
@@ -55,7 +59,7 @@ public class Cavacamixa {
 
 			} else if (args.length == 2) {
 				if (args[0].equals("-p")) { // Plays one game from a deck description
-					
+
 					System.out.println("\nPlaying game using deck: " + args[1] + "\n");
 					GameStats stats = Player.play(new Deck(args[1]), System.out);
 					System.out.println("\nGame results: " + stats);
@@ -73,11 +77,13 @@ public class Cavacamixa {
 	}
 
 	private static void printUsage() {
-		System.out.println(Cavacamixa.class.getCanonicalName() + "<saveFolder>");
+		System.out.println("java -jar <JAR file name> <saveFolder>");
 		System.out.println("\tPlays games forever saving longest game and recovery point in <saveFolder>.");
 		System.out.println("\tIf <saveFolder> contains a recovery point, it starts playing from there.");
-		System.out.println("\t<saveFolder> must exists and writable.");
-		System.out.println(Cavacamixa.class.getCanonicalName() + "-p <deck>");
-		System.out.println("\tPlays a game using <deck> which is a string of 40 numbers 0-3 representing a deck.");
+		System.out.println("\t<saveFolder> must exists and be writable.\n");
+		System.out.println("java -jar <JAR file name> -p <deck>");
+		System.out.println("\tPlays a game using <deck> which is a string of 40 numbers 0-3 representing a deck.\n");
+		System.out.println("java -jar <JAR file name> -h");
+		System.out.println("\tPrints this help message.\n");
 	}
 }

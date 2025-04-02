@@ -173,8 +173,12 @@ public class ParallelExecutor {
 		System.out.println("longest game so far: " + longestGame);
 		System.out.println();
 		while (true) {
+			long start = System.currentTimeMillis();
 			runBatch();
 			writeCheckPoint();
+			long elapsed = (System.currentTimeMillis() - start) / 60_000;
+			System.out
+					.println("Time taken for a batch of " + Cavacamixa.BATCH_SIZE + " games: " + elapsed + " minutes");
 		}
 	}
 
