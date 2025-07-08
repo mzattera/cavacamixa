@@ -18,13 +18,13 @@ Run it with `java -jar cavacamixa.jar -h`
 
 Latest version of .jar file is provided within latest release.
 
-## Longest game so far [April 16th, 2025]
+## Longest game so far [July 8th, 2025]
 
-Deck = 00000000000000002323-01000131203000210000
+Deck = 00000000000000030023-00010001312200300021
 
-Cards Played = 3904
+CardsPlayed = 3910
 
-Penalty Cards Played = 1185
+Penalty Cards Played = 1187
 
 Hands = 637
 

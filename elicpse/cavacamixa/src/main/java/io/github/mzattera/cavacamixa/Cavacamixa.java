@@ -29,7 +29,7 @@ public class Cavacamixa {
 	/**
 	 * Games played between two checkpoints.
 	 */
-	public static final int BATCH_SIZE = 50_000_000;
+	public static final int BATCH_SIZE = 10_000_000;
 
 	/**
 	 * @param args
